@@ -1,2 +1,2 @@
 # whatToEat4DinnerForQICQ
-an idiot qqbot.
+an idiot [qqbot](https://github.com/pandolia/qqbot).
