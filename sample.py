@@ -125,7 +125,7 @@ class PerContactDictionaryValue(object):
     def get_entries(self) -> list:
         li = []
         for key in self.dict:
-            if key is not KeyKeys.WORKING_LIST:
+            if key != KeyKeys.WORKING_LIST:
                 li.append(key)
         return li
 
@@ -135,7 +135,7 @@ class PerContactDictionaryValue(object):
             if self.working_list == name:
                 self.alternative_rand_li = []
             try:
-                if not name == KeyKeys.WORKING_LIST:
+                if name != KeyKeys.WORKING_LIST:
                     del self.dict[name]
                     deleted.append(name)
             except KeyError:
