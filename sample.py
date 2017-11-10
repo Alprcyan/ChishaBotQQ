@@ -289,7 +289,7 @@ def onQQMessage(bot, contact, member, content) -> None:
                 bot.SendTo(contact, 'Deleted lists: ' + ''.join(('\n\t' + str(e)) for e in reversed(deleted)))
                 bot.SendTo(contact, 'Please set a new working list with command: \'set list <list name>\'')
                 onQQMessage(bot, contact, member, 'list lists')
-            elif search('^delete (.)+'):
+            elif search('^delete (.)+', content):
                 items = content.split()[1:]
                 try:
                     indexes = []
