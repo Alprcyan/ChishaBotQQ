@@ -326,7 +326,7 @@ def onQQMessage(bot, contact, member, content) -> None:
                 bot.SendTo(contact, 'Bye bye bye')
             elif content == '-help':
                 a_str = 'Supported commands: \n\t' \
-                        '\'set list &lt;list name>\' \n\t' \
+                        '\'set list \<list name\>\' \n\t' \
                         '\'delete list\' \n\t' \
                         '\'change name <old list name> <new list name>\' \n\t' \
                         '\'list items\' \n\t' \
