@@ -129,17 +129,18 @@ class PerContactDictionaryValue(object):
                 li.append(key)
         return li
 
-    def delete_list(self, names) -> list:
+    def delete_lists(self, names) -> list:
         deleted = []
-        for name in names:
-            if self.working_list == name:
-                self.alternative_rand_li = []
-            try:
-                if name != KeyKeys.WORKING_LIST:
-                    del self.dict[name]
-                    deleted.append(name)
-            except KeyError:
-                pass
+        if isinstance(names, list):
+            for name in names:
+                try:
+                    if name != KeyKeys.WORKING_LIST and name != self.dict[KeyKeys.WORKING_LIST]:
+                        del self.dict[name]
+                        deleted.append(name)
+                except KeyError:
+                    pass
+        else:
+            self.delete_lists([names])
         ItemLists.save_dic(self.contact, self.dict)
         return deleted
 
@@ -186,12 +187,12 @@ class PerContactDictionaryValue(object):
     def get_working_list_name(self) -> str:
         return self.working_list
 
-    def set_working_list(self, dictionary):
-        self.working_list = dictionary
+    def set_working_list(self, list_name):
+        self.working_list = list_name
         try:
-            self.alternative_rand_li = self.dict[dictionary][:]
+            self.alternative_rand_li = self.dict[list_name][:]
         except KeyError:
-            self.dict[dictionary] = []
+            self.dict[list_name] = []
             self.alternative_rand_li = []
         ItemLists.save_dic(self.contact, self.dict)
 
@@ -285,10 +286,9 @@ def onQQMessage(bot, contact, member, content) -> None:
                     ('\n\t' + str(index) + ', ' + str(e)) for index, e in enumerate(li)))
             elif search('^delete list$', content):
                 names = content.split()[2:]
-                deleted = val.delete_list(names)
+                deleted = val.delete_lists(names)
                 bot.SendTo(contact, 'Deleted lists: ' + ''.join(('\n\t' + str(e)) for e in reversed(deleted)))
                 bot.SendTo(contact, 'Please set a new working list with command: \'set list <list name>\'')
-                onQQMessage(bot, contact, member, 'list lists')
             elif search('^delete (.)+', content):
                 items = content.split()[1:]
                 try:
@@ -308,7 +308,7 @@ def onQQMessage(bot, contact, member, content) -> None:
                 val.change_list_name(old_name, new_name)
                 onQQMessage(bot, contact, member, 'list lists')
             elif search('^get( )?list', content):
-                bot.SendTo(contact, 'command' + content + ' is deprecated, use \'list items\' instead')
+                bot.SendTo(contact, 'command ' + content + ' is deprecated, use \'list items\' instead')
                 onQQMessage(bot, contact, member, 'list items')
             elif search('^\[@me\]( )+close$', content):
                 val.close()
