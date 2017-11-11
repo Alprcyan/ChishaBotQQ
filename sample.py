@@ -285,7 +285,7 @@ def onQQMessage(bot, contact, member, content) -> None:
                 names = []
                 for name in li:
                     if val.is_working_list(name):
-                        name = name + ' <'
+                        name = name + ''' <'''
                     names.append(name)
                 bot.SendTo(contact, 'There are ' + str(len(names)) + ' lists in the list:' + ''.join(
                     ('\n\t' + str(index) + ', ' + str(e)) for index, e in enumerate(names)))
@@ -299,7 +299,7 @@ def onQQMessage(bot, contact, member, content) -> None:
                 names = content.split()[2:]
                 deleted = val.delete_lists(names)
                 bot.SendTo(contact, 'Deleted lists: ' + ''.join(('\n\t' + str(e)) for e in deleted))
-                bot.SendTo(contact, 'Please set a new working list with command: \'set list <list name>\'')
+                bot.SendTo(contact, 'Please set a new working list with command: \'set list list_name\'')
             elif search('^delete (.)+$', content):
                 items = content.split()[1:]
                 try:
@@ -326,14 +326,14 @@ def onQQMessage(bot, contact, member, content) -> None:
                 bot.SendTo(contact, 'Bye bye bye')
             elif content == '-help':
                 a_str = 'Supported commands: \n\t' \
-                        '\'set list \<list name\>\' \n\t' \
+                        '\'set list list_name\' \n\t' \
                         '\'delete list\' \n\t' \
-                        '\'change name <old list name> <new list name>\' \n\t' \
+                        '\'change name old_list_name new_list_name\' \n\t' \
                         '\'list items\' \n\t' \
                         '\'list lists\' \n\t' \
                         '\'delete list \' \n\t' \
-                        '\'add <item>\' \n\t' \
-                        '\'delete item [index1 ...]\' \n\t' \
+                        '\'add item_name\' \n\t' \
+                        '\'delete item_name\' \n\t' \
                         '\'random\' \n\t' \
                         '\'今晚吃啥\''
                 bot.SendTo(contact, a_str)
