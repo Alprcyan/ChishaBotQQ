@@ -289,8 +289,10 @@ def onQQMessage(bot, contact, member, content) -> None:
                     names.append(name)
                 bot.SendTo(contact, 'There are ' + str(len(names)) + ' lists in the list:' + ''.join(
                     ('\n\t' + str(index) + ', ' + str(e)) for index, e in enumerate(names)))
-            elif search('^list( )?(items)?$', content):
-                names = val.get_working_list()
+            elif search('^list( )?items(( )+(\S)+)?$', content):
+                list_name = content[content.index('ms') + 3:]
+                list_name = [list_name, val.get_working_list_name()][len(list_name) == 0]
+                names = val.get_working_list(list_name)
                 bot.SendTo(contact, 'There are ' + str(len(names)) + ' items in the list:' + ''.join(
                     ('\n\t' + str(index) + ', ' + str(e)) for index, e in enumerate(names)))
             elif search('^delete list (.)+$', content):
