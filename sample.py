@@ -134,11 +134,10 @@ class PerContactDictionaryValue(object):
         if isinstance(names, list):
             for name in names:
                 try:
-                    if name != KeyKeys.WORKING_LIST and name != self.dict[KeyKeys.WORKING_LIST]:
-                        del self.dict[name]
-                        deleted.append(name)
-                except KeyError as e:
-                    raise e
+                    if name != KeyKeys.WORKING_LIST and name != self.working_list:
+                        deleted.append(self.dict.pop(name))
+                except KeyError:
+                    pass
         else:
             deleted = self.delete_lists([names])
         ItemLists.save_dic(self.contact, self.dict)
@@ -284,12 +283,12 @@ def onQQMessage(bot, contact, member, content) -> None:
                 li = val.get_working_list()
                 bot.SendTo(contact, 'There are ' + str(len(li)) + ' items in the list:' + ''.join(
                     ('\n\t' + str(index) + ', ' + str(e)) for index, e in enumerate(li)))
-            elif search('^delete list$', content):
+            elif search('^delete list (.)+$', content):
                 names = content.split()[2:]
                 deleted = val.delete_lists(names)
                 bot.SendTo(contact, 'Deleted lists: ' + ''.join(('\n\t' + str(e)) for e in reversed(deleted)))
                 bot.SendTo(contact, 'Please set a new working list with command: \'set list <list name>\'')
-            elif search('^delete (.)+', content):
+            elif search('^delete (.)+$', content):
                 items = content.split()[1:]
                 try:
                     indexes = []
