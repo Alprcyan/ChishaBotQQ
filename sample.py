@@ -137,10 +137,10 @@ class PerContactDictionaryValue(object):
                     if name != KeyKeys.WORKING_LIST and name != self.dict[KeyKeys.WORKING_LIST]:
                         del self.dict[name]
                         deleted.append(name)
-                except KeyError:
-                    pass
+                except KeyError as e:
+                    raise e
         else:
-            self.delete_lists([names])
+            deleted = self.delete_lists([names])
         ItemLists.save_dic(self.contact, self.dict)
         return deleted
 
