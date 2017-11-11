@@ -1,2 +1,2 @@
 # whatToEat4DinnerForQICQ
-an idiot [qqbot](https://github.com/pandolia/qqbot).
+Yet another [qqbot](https://github.com/pandolia/qqbot) with a few IF statements in the codebase.
