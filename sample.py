@@ -234,20 +234,20 @@ class PerContactDictionaryValue(object):
         self.count_since_last += 1
 
 
-my_dic = {}
+w2e4d_main_dictionary = {}
 
 
 def onQQMessage(bot, contact, member, content) -> None:
     a_str = str(contact.qq)
 
     try:
-        val = my_dic[a_str]
+        val = w2e4d_main_dictionary[a_str]
     except KeyError:
         val = PerContactDictionaryValue(contact.qq)
-        my_dic[a_str] = val
+        w2e4d_main_dictionary[a_str] = val
     assert isinstance(val, PerContactDictionaryValue)
-    old_content = content
-    content = str(content.strip().lower())
+    old_content = content.strip()
+    content = str(old_content.lower())
 
     val.increase_counter()
 
@@ -276,7 +276,7 @@ def onQQMessage(bot, contact, member, content) -> None:
                 bot.SendTo(contact, 'Added: ' + ''.join(
                     ('\n\t' + str(index) + ', ' + str(e)) for index, e in enumerate(names)))
             elif search('^set( )?list (.)+', content):
-                index = content.index('list') + 5
+                index = old_content.index('list') + 5
                 list_name = content[index:].strip().replace(' ', '_')
                 val.set_working_list(list_name)
                 bot.SendTo(contact, 'Working list set to ' + list_name)
@@ -348,7 +348,7 @@ def onQQMessage(bot, contact, member, content) -> None:
                     val.last_choice = name
                 else:
                     bot.SendTo(contact, '喝西北风吧')
-            elif val.is_recent() and search('^(\S)*(吃不起|没钱|不吃|换一个|不喜欢|不想吃|不好吃)(\S)*$', content):
+            elif val.is_recent() and search('^(\S)*(吃不起|没钱|不吃|换一个|不喜欢|不想吃|不好吃|吃过了)(\S)*$', content):
                 name = val.alternative_rand()
                 if name is not None:
                     bot.SendTo(contact, '那就吃' + name)
