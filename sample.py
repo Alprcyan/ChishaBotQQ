@@ -13,7 +13,7 @@ class KeyKeys:
     WORKING_LIST = 'working_dictionary'
 
 
-FILE_PATH = '~/.qqbot-tmp/whatToEat4DinnerForQICQData.json'
+FILE_PATH = '.qqbot-tmp/whatToEat4DinnerForQICQData.json'
 
 class InfoData:
     hardcoded_dic = {
@@ -280,7 +280,7 @@ def onQQMessage(bot, contact, member, content) -> None:
                     ('\n\t' + str(index) + ', ' + str(e)) for index, e in enumerate(names)))
             elif search('^set( )?list (.)+', content):
                 index = old_content.index('list') + 5
-                list_name = content[index:].strip().replace(' ', '_')
+                list_name = old_content[index:].strip().replace(' ', '_')
                 val.set_working_list(list_name)
                 bot.SendTo(contact, 'Working list set to ' + list_name)
             elif search('^list( )?lists$', content):
