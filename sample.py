@@ -13,6 +13,8 @@ class KeyKeys:
     WORKING_LIST = 'working_dictionary'
 
 
+FILE_PATH = '~/.qqbot-tmp/whatToEat4DinnerForQICQData.json'
+
 class InfoData:
     hardcoded_dic = {
         KeyKeys.DINNER: ['肯德基', '麦当劳', '必胜客', '汉堡王'],
@@ -26,7 +28,7 @@ class InfoData:
     @staticmethod
     def file_init() -> None:
         try:
-            with open('.qqbot-tmp/whatToEat4DinnerForQICQData.json') as fa:
+            with open(FILE_PATH) as fa:
                 new_initial_dic = json.load(fa)
                 try:
                     new_initial_dic['default']
@@ -34,7 +36,7 @@ class InfoData:
                     new_initial_dic = InfoData.info_hub_dictionary
                 InfoData.info_hub_dictionary = new_initial_dic
         except FileNotFoundError:
-            with open('.qqbot-tmp/whatToEat4DinnerForQICQData.json', 'w') as fb:
+            with open(FILE_PATH, 'w') as fb:
                 json.dump(InfoData.info_hub_dictionary, fb)
         InfoData.initialized = True
 
@@ -57,7 +59,7 @@ class ItemLists:
     @staticmethod
     def save_dic(contact, contact_dic) -> None:
         InfoData.info_hub_dictionary[contact] = contact_dic
-        with open('.qqbot-tmp/whatToEat4DinnerForQICQData.json', 'w') as fc:
+        with open(FILE_PATH, 'w') as fc:
             json.dump(InfoData.info_hub_dictionary, fc)
             fc.close()
 
