@@ -94,8 +94,8 @@ class PerContactDictionaryValue(object):
 
     def clean(self) -> list:
         self.alternative_rand_li = []
-        li = self.dict[WORKING_LIST]
-        self.dict[WORKING_LIST] = []
+        li = self.dict[self.working_list]
+        self.dict[self.working_list] = []
         return li
 
     def dict_size(self) -> int:
