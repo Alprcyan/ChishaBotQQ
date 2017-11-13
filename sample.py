@@ -57,7 +57,7 @@ class ItemLists:
     @staticmethod
     def save_dic(contact, contact_dic) -> None:
         InfoData.info_hub_dictionary[contact] = contact_dic
-        with open('.qqbot-tmp/data.json', 'w') as fc:
+        with open('.qqbot-tmp/plugins/whatToEat4DinnerForQICQ', 'w') as fc:
             json.dump(InfoData.info_hub_dictionary, fc)
             fc.close()
 
