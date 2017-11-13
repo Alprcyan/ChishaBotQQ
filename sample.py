@@ -300,12 +300,12 @@ def onQQMessage(bot, contact, member, content) -> None:
                            'There are ' + str(len(names)) + ' items in the list \'' + list_name + '\':' + ''.join(
                                ('\n\t' + str(index) + ', ' + str(e)) for index, e in enumerate(names)))
             elif search('^delete list (.)+$', content):
-                names = content.split()[2:]
+                names = old_content.split()[2:]
                 deleted = val.delete_lists(names)
                 bot.SendTo(contact, 'Deleted lists: ' + ''.join(('\n\t' + str(e)) for e in deleted))
                 bot.SendTo(contact, 'Please set a new working list with command: \'set list list_name\'')
             elif search('^delete (.)+$', content):
-                items = content.split()[1:]
+                items = old_content.split()[1:]
                 try:
                     indexes = []
                     for item in items:
