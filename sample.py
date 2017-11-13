@@ -268,7 +268,7 @@ def onQQMessage(bot, contact, member, content) -> None:
                     bot.SendTo(contact, 'No item found in the list.')
             elif search('^add (.)+', content):
                 content = old_content[4:]
-                names = str(content).strip().splitlines()
+                names = str(content).splitlines()
                 for name in names:
                     name = name.strip()
                     if name != 'list':
