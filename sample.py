@@ -93,7 +93,7 @@ class PerContactDictionaryValue(object):
         save_dic(self.contact, self.dict)
 
     def clean(self) -> list:
-        self.alternative_rand_li.clean()
+        self.alternative_rand_li = []
         li = self.dict[WORKING_LIST]
         self.dict[WORKING_LIST] = []
         return li
