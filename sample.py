@@ -1,74 +1,71 @@
 # -*- coding: utf-8 -*-
 
-# https://github.com/pandolia/qqbot/
-
 from random import randrange
 from time import time
 import json
 from re import search
 
-
-class KeyKeys:
-    DINNER = '晚餐'
-    WORKING_LIST = 'working_dictionary'
-
-
+DINNER = '晚餐'
+WORKING_LIST = 'working_dictionary'
 FILE_PATH = '.qqbot-tmp/whatToEat4DinnerForQICQData.json'
 
-class InfoData:
-    hardcoded_dic = {
-        KeyKeys.DINNER: ['肯德基', '麦当劳', '必胜客', '汉堡王'],
-        KeyKeys.WORKING_LIST: '晚餐'
-    }
-    info_hub_dictionary = {
-        'default': hardcoded_dic
-    }
-    initialized = False
-
-    @staticmethod
-    def file_init() -> None:
-        try:
-            with open(FILE_PATH) as fa:
-                new_initial_dic = json.load(fa)
-                try:
-                    new_initial_dic['default']
-                except KeyError:
-                    new_initial_dic = InfoData.info_hub_dictionary
-                InfoData.info_hub_dictionary = new_initial_dic
-        except FileNotFoundError:
-            with open(FILE_PATH, 'w') as fb:
-                json.dump(InfoData.info_hub_dictionary, fb)
-        InfoData.initialized = True
+hardcoded_dic = {
+    DINNER: ['肯德基', '麦当劳', '必胜客', '汉堡王'],
+    WORKING_LIST: '晚餐'
+}
+HUB = {
+    'default': hardcoded_dic
+}
+w2e4d_data_file_loaded = False
 
 
-class ItemLists:
-    @staticmethod
-    def get_dict(contact=None) -> dict:
-        if not InfoData.initialized:
-            InfoData.file_init()
-        if contact is not None:
+def file_init() -> None:
+    global HUB
+    global w2e4d_data_file_loaded
+    try:
+        with open(FILE_PATH) as f:
+            new_initial_dic = json.load(f)
             try:
-                val = InfoData.info_hub_dictionary[contact]
+                new_initial_dic['default']
             except KeyError:
-                val = InfoData.hardcoded_dic.copy()
-                InfoData.info_hub_dictionary[contact] = val
-        else:
-            val = InfoData.hardcoded_dic.copy()
-        return val
+                new_initial_dic = HUB
+            HUB = new_initial_dic
+    except FileNotFoundError:
+        with open(FILE_PATH, 'w') as f:
+            json.dump(HUB, f)
+    w2e4d_data_file_loaded = True
 
-    @staticmethod
-    def save_dic(contact, contact_dic) -> None:
-        InfoData.info_hub_dictionary[contact] = contact_dic
-        with open(FILE_PATH, 'w') as fc:
-            json.dump(InfoData.info_hub_dictionary, fc)
-            fc.close()
+
+def get_dict(contact=None) -> dict:
+    global HUB
+    global w2e4d_data_file_loaded
+    if not w2e4d_data_file_loaded:
+        file_init()
+    if contact is not None:
+        try:
+            val = HUB[contact]
+        except KeyError:
+            val = hardcoded_dic.copy()
+            HUB[contact] = val
+    else:
+        val = hardcoded_dic.copy()
+    return val
+
+
+def save_dic(contact, contact_dic) -> None:
+    global HUB
+    global w2e4d_data_file_loaded
+    HUB[contact] = contact_dic
+    with open(FILE_PATH, 'w') as f:
+        json.dump(HUB, f)
 
 
 class PerContactDictionaryValue(object):
     def __init__(self, contact):
+        contact = str(contact)
         self.contact = contact
-        self.dict = ItemLists.get_dict(contact)
-        self.working_list = str(self.dict[KeyKeys.WORKING_LIST])
+        self.dict = get_dict(contact)
+        self.working_list = str(self.dict[WORKING_LIST])
         self.closed = False
         self.last_choice = None
         self.last_index = -1
@@ -79,18 +76,27 @@ class PerContactDictionaryValue(object):
         self.alternative_rand_li = self.dict[self.working_list][:]
         self.last_reply_time = 0.0
 
-    def add_item(self, name) -> None:
-        self.alternative_rand_li.append(name)
-        try:
-            self.dict[self.working_list]
-        except KeyError:
-            self.dict[self.working_list] = []
-        self.dict[self.working_list].append(name)
-        ItemLists.save_dic(self.contact, self.dict)
+    def add_items_without_save(self, name):
+        if isinstance(name, list):
+            for item in name:
+                self.add_items_without_save(item)
+        else:
+            self.alternative_rand_li.append(name)
+            try:
+                self.dict[self.working_list]
+            except KeyError:
+                self.dict[self.working_list] = []
+            self.dict[self.working_list].append(name)
 
-    def clean(self) -> None:
+    def add_items_and_save(self, name) -> None:
+        self.add_items_without_save(name)
+        save_dic(self.contact, self.dict)
+
+    def clean(self) -> list:
         self.alternative_rand_li.clean()
-        self.dict = {KeyKeys.WORKING_LIST: ''}
+        li = self.dict[WORKING_LIST]
+        self.dict[WORKING_LIST] = []
+        return li
 
     def dict_size(self) -> int:
         return len(self.dict) - 1
@@ -121,13 +127,13 @@ class PerContactDictionaryValue(object):
                             del self.alternative_rand_li[i]
         else:
             deleted = self.delete_items([args])
-        ItemLists.save_dic(self.contact, self.dict)
+        save_dic(self.contact, self.dict)
         return deleted
 
     def get_entries(self) -> list:
         li = []
         for key in self.dict:
-            if key != KeyKeys.WORKING_LIST:
+            if key != WORKING_LIST:
                 li.append(key)
         return li
 
@@ -136,13 +142,13 @@ class PerContactDictionaryValue(object):
         if isinstance(names, list):
             for name in names:
                 try:
-                    if name != KeyKeys.WORKING_LIST and name != self.working_list:
+                    if name != WORKING_LIST and name != self.working_list:
                         deleted.append(self.dict.pop(name))
                 except KeyError:
                     pass
         else:
             deleted = self.delete_lists([names])
-        ItemLists.save_dic(self.contact, self.dict)
+        save_dic(self.contact, self.dict)
         return deleted
 
     def rand_get(self) -> str:
@@ -177,13 +183,14 @@ class PerContactDictionaryValue(object):
         self.count_since_last = 0
         return things
 
-    def get_working_list(self, name=None) -> list:
-        if name is not None:
-            try:
-                return self.dict[name][:]
-            except KeyError:
-                pass
-        return self.dict[self.working_list][:]
+    def get_list(self, name=None, contact=None) -> list:
+        global HUB
+        contact = str([contact, self.contact][contact is None])
+        name = [name, self.working_list][name is None]
+        try:
+            return HUB[contact][name][:]
+        except KeyError:
+            return []
 
     def is_working_list(self, name) -> bool:
         if name == self.working_list:
@@ -195,13 +202,13 @@ class PerContactDictionaryValue(object):
 
     def set_working_list(self, list_name):
         self.working_list = list_name
-        self.dict[KeyKeys.WORKING_LIST] = list_name
+        self.dict[WORKING_LIST] = list_name
         try:
             self.alternative_rand_li = self.dict[list_name][:]
         except KeyError:
             self.dict[list_name] = []
             self.alternative_rand_li = []
-        ItemLists.save_dic(self.contact, self.dict)
+        save_dic(self.contact, self.dict)
 
     def change_list_name(self, old_name, new_name) -> None:
         try:
@@ -220,15 +227,6 @@ class PerContactDictionaryValue(object):
 
     def open(self) -> None:
         self.closed = False
-
-    def set_talk(self) -> None:
-        self.enable_talk = True
-
-    def set_quiet(self) -> None:
-        self.enable_talk = False
-
-    def talk(self) -> bool:
-        return self.enable_talk
 
     def is_recent(self) -> bool:
         return time() - self.last_rand_get_time < 15 or self.count_since_last < 5
@@ -258,31 +256,33 @@ def onQQMessage(bot, contact, member, content) -> None:
 
     if time() - val.last_reply_time > 1 and not bot.isMe(contact, [member, contact][member is None]):
         if content == 'hello':
-            bot.SendTo(contact, 'How are you')
+            bot.SendTo(contact, '你好')
         elif content == '--stop':
-            bot.SendTo(contact, 'I\'m dead.')
+            bot.SendTo(contact, '我死了')
             bot.Stop()
         elif val.is_open():
             if content == 'random':
                 name = val.rand_get()
                 if name is not None:
-                    bot.SendTo(contact, 'My choice is: ' + name)
+                    bot.SendTo(contact, '我的选择是：' + name)
                 else:
-                    bot.SendTo(contact, 'No item found in the list.')
+                    bot.SendTo(contact, '当前列表中没有项目')
+            elif content == 'dice':
+                bot.SendTo(contact, str(int(randrange(6) + 1)))
             elif search('^add (.)+', content):
                 content = old_content[4:]
                 names = str(content).splitlines()
                 for name in names:
                     name = name.strip()
                     if name != 'list':
-                        val.add_item(name)
-                bot.SendTo(contact, 'Added: ' + ''.join(
+                        val.add_items_and_save(name)
+                bot.SendTo(contact, '已添加：' + ''.join(
                     ('\n\t' + str(index) + ', ' + str(e)) for index, e in enumerate(names)))
             elif search('^set( )?list (.)+', content):
                 index = old_content.index('list') + 5
                 list_name = old_content[index:].strip().replace(' ', '_')
                 val.set_working_list(list_name)
-                bot.SendTo(contact, 'Working list set to ' + list_name)
+                bot.SendTo(contact, '当前列表已设置为' + list_name)
             elif search('^list( )?lists$', content):
                 li = val.get_entries()
                 names = []
@@ -290,20 +290,20 @@ def onQQMessage(bot, contact, member, content) -> None:
                     if val.is_working_list(name):
                         name = name + ' *'
                     names.append(name)
-                bot.SendTo(contact, 'There are ' + str(len(names)) + ' lists for this contact:' + ''.join(
+                bot.SendTo(contact, '此对话共有' + str(len(names)) + '个列表：' + ''.join(
                     ('\n\t' + str(e)) for e in names))
             elif search('^list( )?items(( )+(\S)+)?$', content):
                 list_name = content[content.index('ms') + 3:]
                 list_name = [list_name, val.get_working_list_name()][len(list_name) == 0].strip().replace(' ', '_')
-                names = val.get_working_list(list_name)
+                names = val.get_list(list_name)
                 bot.SendTo(contact,
-                           'There are ' + str(len(names)) + ' items in the list \'' + list_name + '\':' + ''.join(
+                           '列表\'' + list_name + '\'中共有' + str(len(names)) + '个项目：' + ''.join(
                                ('\n\t' + str(index) + ', ' + str(e)) for index, e in enumerate(names)))
             elif search('^delete list (.)+$', content):
                 names = old_content.split()[2:]
                 deleted = val.delete_lists(names)
-                bot.SendTo(contact, 'Deleted lists: ' + ''.join(('\n\t' + str(e)) for e in deleted))
-                bot.SendTo(contact, 'Please set a new working list with command: \'set list list_name\'')
+                bot.SendTo(contact, '已删除列表：' + ''.join(('\n\t' + str(e)) for e in deleted))
+                bot.SendTo(contact, '请使用命令 \'set list list_name\' 设置新的列表')
             elif search('^delete (.)+$', content):
                 items = old_content.split()[1:]
                 try:
@@ -315,7 +315,7 @@ def onQQMessage(bot, contact, member, content) -> None:
                 else:
                     names = val.delete_items(indexes)
                 bot.SendTo(contact,
-                           'Deleted: ' + ''.join(('\n\t' + str(e)) for e in reversed(names)))
+                           '已删除：' + ''.join(('\n\t' + str(e)) for e in reversed(names)))
             elif search('^change name (\S)+ (\S)+$', content):
                 list_names = content[12:].split()
                 old_name = list_names[0]
@@ -323,22 +323,36 @@ def onQQMessage(bot, contact, member, content) -> None:
                 val.change_list_name(old_name, new_name)
                 onQQMessage(bot, contact, member, 'list lists')
             elif search('^get( )?list', content):
-                bot.SendTo(contact, 'command ' + content + ' is deprecated, use \'list items\' instead')
                 onQQMessage(bot, contact, member, 'list items')
+            elif search('^copy (\d){5,12} (\S)+', content):
+                try:
+                    qq, name = old_content.split()[1:]
+                except KeyError:
+                    bot.SendTo(contact, '参数错误。举例：\'copy 10001 马化腾的晚餐\'')
+                    return
+                src_list = val.get_list(name, qq)
+                if len(src_list) == 0:
+                    bot.SendTo(contact, '源列表为空或不存在，请重试')
+                    return
+                val.add_items_and_save(src_list)
+                bot.SendTo(contact, '已添加')
+            elif content == '--clean-list':
+                li = val.clean()
+                bot.SendTo(contact, '已清空列表\'' + val.get_working_list_name() + '\'：\n\t' + str(li))
             elif search('^\[@me\]( )+close$', content):
                 val.close()
                 bot.SendTo(contact, 'Bye bye bye')
             elif content == '-help':
-                a_str = 'Supported commands: \n\t' \
-                        '\'set list list_name\' \n\t' \
-                        '\'delete list\' \n\t' \
-                        '\'change name old_list_name new_list_name\' \n\t' \
-                        '\'list items\' \n\t' \
-                        '\'list lists\' \n\t' \
-                        '\'delete list \' \n\t' \
-                        '\'add item_name\' \n\t' \
-                        '\'delete item_name\' \n\t' \
-                        '\'random\' \n\t' \
+                a_str = '支持命令: \n\t' \
+                        '\'set list list_name\'：将当前列表设置为list_name\n\t' \
+                        '\'delete list list_name\'：删除名为list_name的列表，不可为当前列表\n\t' \
+                        '\'change name old_list_name new_list_name\'：将old_list_name更名为new_list_name\n\t' \
+                        '\'list items\'：列出当前列表的所有项目\n\t' \
+                        '\'list lists\'：列出该对话的所有列表名\n\t' \
+                        '\'add item_name\'：将item_name添加到当前列表\n\t' \
+                        '\'delete item_name\'：删除当前列表中的对应项目，以换行隔开\n\t' \
+                        '\'random\'：从当前列表中随机选择\n\t' \
+                        '\'copy qq src_list_name\'：将src_list_name中的项目添加到自己的当前列表\n\t' \
                         '\'今晚吃啥\''
                 bot.SendTo(contact, a_str)
             elif search('^(\S)*([今明昨后前])?(\S)?(早|晚|中午|夜宵)(\S)?吃(啥|什么|什麼)(\S)*$', content):
@@ -361,7 +375,7 @@ def onQQMessage(bot, contact, member, content) -> None:
                 responded = False
         elif search('^\[@me\]( )+open$', content):
             val.open()
-            bot.SendTo(contact, 'I\'m back online!')
+            bot.SendTo(contact, '我又回来了')
         else:
             responded = False
 
