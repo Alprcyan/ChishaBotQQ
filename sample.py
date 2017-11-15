@@ -7,7 +7,8 @@ from re import search
 
 DINNER = '晚餐'
 WORKING_LIST = 'working_dictionary'
-FILE_PATH = '.qqbot-tmp/whatToEat4DinnerForQICQData.json'
+USER_HOME = ''
+FILE_PATH = USER_HOME + '.qqbot-tmp/whatToEat4DinnerForQICQData.json'
 
 hardcoded_dic = {
     DINNER: ['肯德基', '麦当劳', '必胜客', '汉堡王'],
@@ -107,21 +108,23 @@ class PerContactDictionaryValue(object):
     def delete_items(self, args) -> list:
         deleted = []
         if isinstance(args, list):
-            if isinstance(args[0], int):
-                args = reversed(sorted(args))
-                for index in args:
-                    name = self.dict[self.working_list][index]
-                    del self.dict[self.working_list][index]
-                    deleted.append(name)
-                    for i, e in enumerate(self.alternative_rand_li):
-                        if e == name:
-                            del self.alternative_rand_li[i]
-            elif isinstance(args[0], str):
+            try:
+                indexes = []
+                for item in args:
+                    indexes.append(int(item))
+            except ValueError:
                 for name in args:
                     for i, e in enumerate(self.dict[self.working_list]):
                         if e == name:
-                            del self.dict[self.working_list][i]
-                            deleted.append(name)
+                            deleted.append(self.dict[self.working_list].pop(i))
+                    for i, e in enumerate(self.alternative_rand_li):
+                        if e == name:
+                            del self.alternative_rand_li[i]
+            else:
+                indexes = reversed(sorted(indexes))
+                for index in indexes:
+                    name = self.dict[self.working_list].pop(index)
+                    deleted.append(name)
                     for i, e in enumerate(self.alternative_rand_li):
                         if e == name:
                             del self.alternative_rand_li[i]
@@ -152,23 +155,27 @@ class PerContactDictionaryValue(object):
         return deleted
 
     def rand_get(self) -> str:
-        val = self.current_list_size()
-        if val > 0:
-            if val > 1:
+        size = self.current_list_size()
+        name = None
+        if size > 0:
+            if size > 1:
                 next_index = self.last_index
                 while next_index == self.last_index:
-                    next_index = randrange(val)
+                    next_index = randrange(size)
             else:
                 next_index = 0
             self.last_index = next_index
-            things = self.dict[self.working_list][next_index]
-            self.alternative_rand_li = self.dict[self.working_list][:]
-            del self.alternative_rand_li[next_index]
-        else:
-            things = None
+            try:
+                name = self.dict[self.working_list][next_index]
+                self.alternative_rand_li = self.dict[self.working_list][:]
+                for index, value in enumerate(self.alternative_rand_li):
+                    if value == name:
+                        del self.alternative_rand_li[next_index]
+            except KeyError:
+                pass
         self.last_rand_get_time = time()
         self.count_since_last = 0
-        return things
+        return name
 
     def alternative_rand(self) -> str:
         self.last_index = -1
@@ -213,6 +220,8 @@ class PerContactDictionaryValue(object):
     def change_list_name(self, old_name, new_name) -> None:
         try:
             self.dict[new_name] = self.dict.pop(old_name)
+            if old_name == self.working_list:
+                self.working_list = new_name
         except KeyError:
             pass
 
@@ -306,14 +315,7 @@ def onQQMessage(bot, contact, member, content) -> None:
                 bot.SendTo(contact, '请使用命令 \'set list list_name\' 设置新的列表')
             elif search('^delete (.)+$', content):
                 items = old_content.split()[1:]
-                try:
-                    indexes = []
-                    for item in items:
-                        indexes.append(int(item))
-                except ValueError:
-                    names = val.delete_items(items)
-                else:
-                    names = val.delete_items(indexes)
+                names = val.delete_items(items)
                 bot.SendTo(contact,
                            '已删除：' + ''.join(('\n\t' + str(e)) for e in reversed(names)))
             elif search('^change name (\S)+ (\S)+$', content):
