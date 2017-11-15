@@ -34,6 +34,7 @@ def file_init() -> None:
     except FileNotFoundError:
         with open(FILE_PATH, 'w') as f:
             json.dump(HUB, f)
+    HUB['__version__'] = '1.0.1'
     w2e4d_data_file_loaded = True
 
 
