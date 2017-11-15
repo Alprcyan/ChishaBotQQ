@@ -98,6 +98,7 @@ class PerContactDictionaryValue(object):
         self.alternative_rand_li = []
         li = self.dict[self.working_list]
         self.dict[self.working_list] = []
+        save_dic(self.contact, self.dict)
         return li
 
     def dict_size(self) -> int:
