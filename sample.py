@@ -59,7 +59,7 @@ def save_dic(contact, contact_dic) -> None:
     global w2e4d_data_file_loaded
     HUB[contact] = contact_dic
     with open(FILE_PATH, 'w') as f:
-        json.dump(HUB, f)
+        json.dump(HUB, f, indent=4)
 
 
 class PerContactDictionaryValue(object):
