@@ -280,6 +280,8 @@ def onQQMessage(bot, contact, member, content) -> None:
                     bot.SendTo(contact, '当前列表中没有项目')
             elif content == 'dice':
                 bot.SendTo(contact, str(int(randrange(6) + 1)))
+            elif content == 'flip':
+                bot.SendTo(contact, ['Tails', 'Heads'][int(randrange(2))])
             elif search('^add (.)+', content):
                 content = old_content[4:]
                 names = str(content).splitlines()
@@ -303,7 +305,7 @@ def onQQMessage(bot, contact, member, content) -> None:
                     names.append(name)
                 bot.SendTo(contact, '此对话共有' + str(len(names)) + '个列表：' + ''.join(
                     ('\n\t' + str(e)) for e in names))
-            elif search('^list( )?items(( )+(\S)+)?$', content):
+            elif search('^list( )?items( (\S)+)?$', content):
                 list_name = content[content.index('ms') + 3:]
                 list_name = [list_name, val.get_working_list_name()][len(list_name) == 0].strip().replace(' ', '_')
                 names = val.get_list(list_name)
@@ -328,7 +330,7 @@ def onQQMessage(bot, contact, member, content) -> None:
                 onQQMessage(bot, contact, member, 'list lists')
             elif search('^get( )?list', content):
                 onQQMessage(bot, contact, member, 'list items')
-            elif search('^copy (\d){5,12} (\S)+', content):
+            elif search('^copy ((\d){5,12}|default) (\S)+', content):
                 try:
                     qq, name = old_content.split()[1:]
                 except KeyError:
