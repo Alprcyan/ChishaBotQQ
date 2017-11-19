@@ -321,8 +321,9 @@ def onQQMessage(bot, contact, member, content) -> None:
                 ranges = content.split()[2:]
                 indexes = []
                 begin = int(ranges[0])
-                end = int(ranges[1]) + 1
+                end = int(ranges[1])
                 begin, end = [(end, begin), (begin, end)][begin < end]
+                end += 1
                 for i in range(begin, end):
                     indexes.append(i)
                 deleted = val.delete_items(indexes)
