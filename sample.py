@@ -361,7 +361,7 @@ def onQQMessage(bot, contact, member, content) -> None:
                         '\'copy qq src_list_name\'：将src_list_name中的项目添加到自己的当前列表\n\t' \
                         '\'今晚吃啥\''
                 bot.SendTo(contact, a_str)
-            elif search('^(\S)*([今明昨后前])?(\S)?(早|晚|中午|夜宵)(\S)?吃(啥|什么|什麼)(\S)*$', content):
+            elif search('^((\S)*([今明昨后前])?(\S)?(早|晚|午|夜宵)(\S)?吃(啥|什么|什麼)(\S)*)|吃啥$', content):
                 name = val.rand_get()
                 if name is not None:
                     if (name != '鸡' and name != '吃鸡') or not content.__contains__('晚'):
