@@ -284,13 +284,13 @@ def onQQMessage(bot, contact, member, content) -> None:
                 bot.SendTo(contact, ['Tails', 'Heads'][int(randrange(2))])
             elif search('^add (.)+', content):
                 content = old_content[4:]
-                names = str(content).splitlines()
-                for name in names:
+                deleted = str(content).splitlines()
+                for name in deleted:
                     name = name.strip()
                     if name != 'list':
                         val.add_items_and_save(name)
                 bot.SendTo(contact, '已添加：' + ''.join(
-                    ('\n\t' + str(index) + ', ' + str(e)) for index, e in enumerate(names)))
+                    ('\n\t' + str(e)) for index, e in enumerate(deleted)))
             elif search('^set( )?list (.)+', content):
                 index = old_content.index('list') + 5
                 list_name = old_content[index:].strip().replace(' ', '_')
@@ -298,30 +298,41 @@ def onQQMessage(bot, contact, member, content) -> None:
                 bot.SendTo(contact, '当前列表已设置为' + list_name)
             elif search('^list( )?lists$', content):
                 li = val.get_entries()
-                names = []
+                deleted = []
                 for name in li:
                     if val.is_working_list(name):
                         name = name + ' *'
-                    names.append(name)
-                bot.SendTo(contact, '此对话共有' + str(len(names)) + '个列表：' + ''.join(
-                    ('\n\t' + str(e)) for e in names))
+                    deleted.append(name)
+                bot.SendTo(contact, '此对话共有' + str(len(deleted)) + '个列表：' + ''.join(
+                    ('\n\t' + str(e)) for e in deleted))
             elif search('^list( )?items( (\S)+)?$', content):
                 list_name = content[content.index('ms') + 3:]
                 list_name = [list_name, val.get_working_list_name()][len(list_name) == 0].strip().replace(' ', '_')
-                names = val.get_list(list_name)
+                deleted = val.get_list(list_name)
                 bot.SendTo(contact,
-                           '列表\'' + list_name + '\'中共有' + str(len(names)) + '个项目：' + ''.join(
-                               ('\n\t' + str(index) + ', ' + str(e)) for index, e in enumerate(names)))
+                           '列表\'' + list_name + '\'中共有' + str(len(deleted)) + '个项目：' + ''.join(
+                               ('\n\t' + str(index) + ', ' + str(e)) for index, e in enumerate(deleted)))
             elif search('^delete list (.)+$', content):
-                names = old_content.split()[2:]
-                deleted = val.delete_lists(names)
+                deleted = old_content.split()[2:]
+                deleted = val.delete_lists(deleted)
                 bot.SendTo(contact, '已删除列表：' + ''.join(('\n\t' + str(e)) for e in deleted))
                 bot.SendTo(contact, '请使用命令 \'set list list_name\' 设置新的列表')
+            elif search('delete range (\d)+ (\d)+', content):
+                ranges = content.split()[2:]
+                indexes = []
+                begin = int(ranges[0])
+                end = int(ranges[1]) + 1
+                begin, end = [(end, begin), (begin, end)][begin < end]
+                for i in range(begin, end):
+                    indexes.append(i)
+                deleted = val.delete_items(indexes)
+                bot.SendTo(contact,
+                           '已删除：' + ''.join(('\n\t' + str(e)) for e in reversed(deleted)))
             elif search('^delete (.)+$', content):
                 items = old_content.split()[1:]
-                names = val.delete_items(items)
+                deleted = val.delete_items(items)
                 bot.SendTo(contact,
-                           '已删除：' + ''.join(('\n\t' + str(e)) for e in reversed(names)))
+                           '已删除：' + ''.join(('\n\t' + str(e)) for e in reversed(deleted)))
             elif search('^change name (\S)+ (\S)+$', content):
                 list_names = content[12:].split()
                 old_name = list_names[0]
@@ -350,16 +361,17 @@ def onQQMessage(bot, contact, member, content) -> None:
                 bot.SendTo(contact, 'Bye bye bye')
             elif content == '-help':
                 a_str = '支持命令: \n\t' \
-                        '\'set list list_name\'：将当前列表设置为list_name\n\t' \
-                        '\'delete list list_name\'：删除名为list_name的列表，不可为当前列表\n\t' \
-                        '\'change name old_list_name new_list_name\'：将old_list_name更名为new_list_name\n\t' \
+                        '\'set list $list_name\'：将当前列表设置为list_name\n\t' \
+                        '\'delete list $list_name\'：删除名为list_name的列表，不可为当前列表\n\t' \
+                        '\'change name $old_list_name $new_list_name\'：将old_list_name更名为new_list_name\n\t' \
                         '\'list items\'：列出当前列表的所有项目\n\t' \
                         '\'list lists\'：列出该对话的所有列表名\n\t' \
-                        '\'add item_name\'：将item_name添加到当前列表\n\t' \
-                        '\'delete item_name\'：删除当前列表中的对应项目，以换行隔开\n\t' \
+                        '\'add $item_name\'：将item_name添加到当前列表\n\t' \
+                        '\'delete $item_name|$index\'：删除当前列表中的对应项目，以换行隔开\n\t' \
+                        '\'delete range $begin $end\': 删除当前列表中自 begin（含）到 end（含）的项目' \
                         '\'random\'：从当前列表中随机选择\n\t' \
-                        '\'copy qq src_list_name\'：将src_list_name中的项目添加到自己的当前列表\n\t' \
-                        '\'今晚吃啥\''
+                        '\'copy $qq $src_list_name\'：将指定对话中的src_list_name中的项目添加到自己的当前列表\n\t' \
+                        '\'今晚吃啥\': 吃电子羊'
                 bot.SendTo(contact, a_str)
             elif search('^((\S)*([今明昨后前])?(\S)?(早|晚|午|夜宵)(\S)?吃(啥|什么|什麼)(\S)*)|吃啥$', content):
                 name = val.rand_get()
