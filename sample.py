@@ -128,7 +128,7 @@ class PerContactDictionaryValue(object):
                     try:
                         name = self.dict[self.working_list].pop(index)
                     except IndexError:
-                        pass
+                        continue
                     deleted.append(name)
                     for i, e in enumerate(self.alternative_rand_li):
                         if e == name:
