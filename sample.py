@@ -323,7 +323,7 @@ def onQQMessage(bot, contact, member, content) -> None:
                 begin = int(ranges[0])
                 end = int(ranges[1])
                 begin, end = [(end, begin), (begin, end)][begin < end]
-                end += 1
+                end = [val.current_list_size(), end + 1][end < val.current_list_size()]
                 for i in range(begin, end):
                     indexes.append(i)
                 deleted = val.delete_items(indexes)
