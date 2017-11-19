@@ -125,7 +125,10 @@ class PerContactDictionaryValue(object):
             else:
                 indexes = reversed(sorted(indexes))
                 for index in indexes:
-                    name = self.dict[self.working_list].pop(index)
+                    try:
+                        name = self.dict[self.working_list].pop(index)
+                    except IndexError:
+                        pass
                     deleted.append(name)
                     for i, e in enumerate(self.alternative_rand_li):
                         if e == name:
