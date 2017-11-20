@@ -48,6 +48,8 @@ def get_dict(contact=None) -> dict:
             val = HUB[contact]
         except KeyError:
             val = hardcoded_dic.copy()
+            for item in val:
+                val[item] = val[item][:]
             HUB[contact] = val
     else:
         val = hardcoded_dic.copy()
