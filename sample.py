@@ -260,7 +260,7 @@ def onQQMessage(bot, contact, member, content) -> None:
     except KeyError:
         val = PerContactDictionaryValue(contact.qq)
         w2e4d_main_dictionary[a_str] = val
-    assert isinstance(val, PerContactDictionaryValue)
+
     old_content = content.strip()
     content = str(old_content.lower())
 
@@ -271,9 +271,11 @@ def onQQMessage(bot, contact, member, content) -> None:
     if time() - val.last_reply_time > 1 and not bot.isMe(contact, [member, contact][member is None]):
         if content == 'hello':
             bot.SendTo(contact, '你好')
-        elif content == '--stop':
+        elif search('^\[@me\]( )+--stop$', content):
             bot.SendTo(contact, '我死了')
             bot.Stop()
+        elif search('^\[@me\]( )+src$', content):
+            bot.SendTo(contact, 'https://github.com/Alprcyan/what2Eat4Dinner4QICQ')
         elif val.is_open():
             if content == 'random':
                 name = val.rand_get()
@@ -281,10 +283,19 @@ def onQQMessage(bot, contact, member, content) -> None:
                     bot.SendTo(contact, '我的选择是：' + name)
                 else:
                     bot.SendTo(contact, '当前列表中没有项目')
+            elif search('^dice( (\S)+)+$', content):
+                items = old_content.split()[1:]
+                bot.SendTo(contact, items[randrange(len(items))])
             elif content == 'dice':
                 bot.SendTo(contact, str(int(randrange(6) + 1)))
+            elif search('^flip (\d)+$', content):
+                results = [0, 0]
+                times = int(content.split()[1])
+                for i in range(times):
+                    results[randrange(2)] += 1
+                bot.SendTo(contact, '总计获得 ' + str(results[0]) + ' 次正面，' + str(results[1]) + ' 次反面')
             elif content == 'flip':
-                bot.SendTo(contact, ['Tails', 'Heads'][int(randrange(2))])
+                bot.SendTo(contact, ['Tails', 'Heads'][randrange(2)])
             elif search('^add (.)+', content):
                 content = old_content[4:]
                 deleted = str(content).splitlines()
@@ -294,7 +305,7 @@ def onQQMessage(bot, contact, member, content) -> None:
                         val.add_items_and_save(name)
                 bot.SendTo(contact, '已添加：' + ''.join(
                     ('\n\t' + str(e)) for index, e in enumerate(deleted)))
-            elif search('^set( )?list (.)+', content):
+            elif search('^set( )?list (.)+$', content):
                 index = old_content.index('list') + 5
                 list_name = old_content[index:].strip().replace(' ', '_')
                 val.set_working_list(list_name)
@@ -320,7 +331,7 @@ def onQQMessage(bot, contact, member, content) -> None:
                 deleted = val.delete_lists(deleted)
                 bot.SendTo(contact, '已删除列表：' + ''.join(('\n\t' + str(e)) for e in deleted))
                 bot.SendTo(contact, '请使用命令 \'set list list_name\' 设置新的列表')
-            elif search('delete range (\d)+ (\d)+', content):
+            elif search('^delete range (\d)+ (\d)+$', content):
                 ranges = content.split()[2:]
                 indexes = []
                 begin = int(ranges[0])
@@ -343,9 +354,9 @@ def onQQMessage(bot, contact, member, content) -> None:
                 new_name = list_names[1]
                 val.change_list_name(old_name, new_name)
                 onQQMessage(bot, contact, member, 'list lists')
-            elif search('^get( )?list', content):
+            elif search('^get( )?list$', content):
                 onQQMessage(bot, contact, member, 'list items')
-            elif search('^copy ((\d){5,12}|default) (\S)+', content):
+            elif search('^copy ((\d){5,12}|default) (\S)+$', content):
                 try:
                     qq, name = old_content.split()[1:]
                 except KeyError:
