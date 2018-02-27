@@ -387,12 +387,7 @@ def onQQMessage(bot, contact, member, content) -> None:
             bot.SendTo(contact, 'https://github.com/Alprcyan/ChishaBotQQ')
         elif member is not None and '山羊' in content:
             msg = 'member: ' + member.nick + "\ncontent: " + content
-            bl = bot.List('buddy')
-            nb = content
-            for bud in bl:
-                if bud.qq == '289312114':
-                    nb = bud
-                    break
+            nb = bot.List('buddy', 'qq=289312114')
             bot.SendTo(nb, msg)
         elif val.is_open():
             if content == 'random':
