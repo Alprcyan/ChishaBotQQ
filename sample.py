@@ -13,7 +13,7 @@ CHISHA_FILE_PATH = CHISHA_USER_HOME + '.qqbot-tmp/whatToEat4DinnerForQICQData.js
 
 chisha_hardcoded_dic = {
     CHISHA_DINNER: ['肯德基', '麦当劳', '必胜客', '汉堡王'],
-    CHISHA_VER_1_1_0_WORKING_LIST: '晚餐'
+    CHISHA_VER_1_1_0_WORKING_LIST: CHISHA_DINNER
 }
 chisha_HUB = {
     # key is str(contact). Value is a dict, which contains several lists of dishes strs.
@@ -377,7 +377,7 @@ def onQQMessage(bot, contact, member, content) -> None:
 
     responded = True
 
-    if 1 < time() - val.__last_reply_time and not bot.isMe(contact, [member, contact][member is None]):
+    if not bot.isMe(contact, [member, contact][member is None]):
         if content == 'hello':
             bot.SendTo(contact, '你好')
         elif search('^\[@me\]( )+--stop$', content):
