@@ -386,7 +386,7 @@ def onQQMessage(bot, contact, member, content) -> None:
         elif search('^\[@me\]( )+src$', content):
             bot.SendTo(contact, 'https://github.com/Alprcyan/ChishaBotQQ')
         elif member is not None and '山羊' in content:
-            bot.SendTo(contact, 'member: ' + member + "\ncontent: "+ content)
+            bot.SendTo(contact, 'member: ' + member.nick + "\ncontent: " + content)
         elif val.is_open():
             if content == 'random':
                 name = val.get_random_item()
