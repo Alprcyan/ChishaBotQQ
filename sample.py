@@ -2,6 +2,7 @@
 
 from random import randrange
 from time import time
+from datetime import datetime
 import json
 from re import search
 
@@ -386,7 +387,9 @@ def onQQMessage(bot, contact, member, content) -> None:
         elif search('^\[@me\]( )+src$', content):
             bot.SendTo(contact, 'https://github.com/Alprcyan/ChishaBotQQ')
         elif member is not None and '山羊' in content:
-            msg = 'member: ' + member.nick + "\ncontent: " + content
+            now = datetime.now()
+            msg = member.nick + ' 于' + str(now.day) + '日' + \
+                  str(now.hour) + '时' + str(now.minute) + '分说：' + content
             goats = bot.List('buddy', '山羊')
             for goat in goats:
                 bot.SendTo(goat, msg)
