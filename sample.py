@@ -393,7 +393,7 @@ def onQQMessage(bot, contact, member, content) -> None:
                 if bud.qq == '289312114':
                     nb = bud
                     break
-            bot.SendTo(nb, )
+            bot.SendTo(nb, msg)
         elif val.is_open():
             if content == 'random':
                 name = val.get_random_item()
