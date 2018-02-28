@@ -386,10 +386,14 @@ def onQQMessage(bot, contact, member, content) -> None:
             bot.Stop()
         elif search('^\[@me\]( )+src$', content):
             bot.SendTo(contact, 'https://github.com/Alprcyan/ChishaBotQQ')
-        elif member is not None and '山羊' in content and content != '山羊':
+        elif member is not None and '233174988' in member.uin and (
+                ('山羊' in content and content != '山羊') or
+                ('@猫头羊' in content and content != '@猫头羊') or
+                ('@青菜填埋机' in content and content != '青菜填埋机')
+        ):
             now = datetime.now()
-            msg = member.nick + ' 于' + str(now.day) + '日' + \
-                  str(now.hour) + '时' + str(now.minute) + '分说：' + content
+            msg = member.nick + ' 于' + str(now.day) + '日' + str(now.hour) + '时' \
+                  + str(now.minute) + '分说：' + content
             goats = bot.List('buddy', '山羊')
             for goat in goats:
                 bot.SendTo(goat, msg)
