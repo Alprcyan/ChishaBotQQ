@@ -38,20 +38,6 @@ def chisha_load_json_file() -> None:
     except FileNotFoundError:
         with open(CHISHA_FILE_PATH, 'w') as f:
             json.dump(chisha_HUB, f, indent=4)
-    if CHISHA_VER_1_0_2_WORKING_LIST in chisha_HUB:
-        new_dic = {}
-        for contact in chisha_HUB:
-            if isinstance(chisha_HUB[contact], dict):
-                for key in chisha_HUB[contact]:
-                    if key != CHISHA_VER_1_0_2_WORKING_LIST:
-                        new_dic[contact][key] = chisha_HUB[contact][key]
-                    else:
-                        new_dic[contact][CHISHA_VER_1_1_0_WORKING_LIST] = chisha_HUB[contact][key]
-            else:
-                new_dic[contact] = chisha_HUB[contact][:]
-        chisha_HUB = new_dic
-    else:
-        print('current version is: ' + chisha_HUB['__version__'])
     chisha_HUB['__version__'] = '1.1.0'
     chisha_json_file_is_loaded = True
 
@@ -521,6 +507,6 @@ def onQQMessage(bot, contact, member, content) -> None:
             bot.SendTo(contact, '我又回来了')
         else:
             responded = False
-
+            
         if responded:
             val.__last_reply_time = time()
