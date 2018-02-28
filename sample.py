@@ -389,7 +389,8 @@ def onQQMessage(bot, contact, member, content) -> None:
         elif member is not None and '233174988' in member.uin and (
                 ('山羊' in content and content != '山羊') or
                 ('@猫头羊' in content and content != '@猫头羊') or
-                ('@青菜填埋机' in content and content != '青菜填埋机')
+                ('@青菜填埋机' in content and content != '青菜填埋机')or
+                ('@1' in content and content != '1')
         ):
             now = datetime.now()
             msg = member.nick + ' 于' + str(now.day) + '日' + str(now.hour) + '时' \
