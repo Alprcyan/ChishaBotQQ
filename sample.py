@@ -386,7 +386,7 @@ def onQQMessage(bot, contact, member, content) -> None:
             bot.Stop()
         elif search('^\[@me\]( )+src$', content):
             bot.SendTo(contact, 'https://github.com/Alprcyan/ChishaBotQQ')
-        elif member is not None and '233174988' in member.uin and (
+        elif member is not None and '233174988' in contact.uin and (
                 ('山羊' in content and content != '山羊') or
                 ('@猫头羊' in content and content != '@猫头羊') or
                 ('@青菜填埋机' in content and content != '青菜填埋机')or
